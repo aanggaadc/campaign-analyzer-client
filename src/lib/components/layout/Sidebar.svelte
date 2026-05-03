@@ -24,10 +24,9 @@
 		}
 	] as const;
 
-
 	function isActive(href: string): boolean {
-		if (href === '/') return $page.url.pathname === '/';
-		return $page.url.pathname.startsWith(href);
+		if (href === '/') return $page.url.pathname === '/dashboard';
+		return $page.url.pathname === href;
 	}
 </script>
 
