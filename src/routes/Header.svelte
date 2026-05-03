@@ -6,7 +6,7 @@
 </script>
 
 <header>
-	<div class="corner mt-2">
+	<div class="corner mb-2">
 		<a href="https://svelte.dev/docs/kit">
 			<img src={logo} alt="SvelteKit" />
 		</a>

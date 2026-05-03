@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono&display=swap');
+@import "tailwindcss";
 @import '@fontsource/fira-mono';
 
 :root {
@@ -15,6 +17,29 @@
 	--column-margin-top: 4rem;
 	font-family: var(--font-body);
 	color: var(--color-text);
+}
+
+@layer base {
+  :root {
+    /* surface */
+    --color-surface: #0f0f11;
+    --color-surface-card: #18181b;
+    --color-surface-elevated: #212127;
+
+    /* accent */
+    --color-accent: #6366f1;
+    --color-accent-hover: #818cf8;
+    --color-accent-muted: #312e81;
+
+    /* brand */
+    --color-brand-orange: #f97316;
+    --color-brand-green: #22c55e;
+    --color-brand-red: #ef4444;
+  }
+
+  body {
+    @apply bg-[var(--color-surface)] text-white font-sans;
+  }
 }
 
 body {
