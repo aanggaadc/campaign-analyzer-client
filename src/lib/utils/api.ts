@@ -19,7 +19,7 @@ export const api = {
 		const res = await fetch(`${API_URL}${path}`, { headers });
 		if (!res.ok) throw new Error(`API error: ${res.status}`);
 		const json = await res.json();
-		return json.data;
+		return json;
 	},
 
 	async post<T>(path: string, body: unknown): Promise<T> {
@@ -32,5 +32,11 @@ export const api = {
 		if (!res.ok) throw new Error(`API error: ${res.status}`);
 		const json = await res.json();
 		return json.data;
+	},
+
+	async delete(path: string): Promise<void> {
+		const headers = await getAuthHeaders();
+		const res = await fetch(`${API_URL}${path}`, { method: 'DELETE', headers });
+		if (!res.ok) throw new Error(`API error: ${res.status}`);
 	}
 };
