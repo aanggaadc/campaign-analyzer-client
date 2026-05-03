@@ -14,12 +14,12 @@ async function getAuthHeaders(): Promise<Record<string, string>> {
 }
 
 export const api = {
-	async get<T>(path: string): Promise<T> {
+	async get<T>(path: string, isPagination = false): Promise<T> {
 		const headers = await getAuthHeaders();
 		const res = await fetch(`${API_URL}${path}`, { headers });
 		if (!res.ok) throw new Error(`API error: ${res.status}`);
 		const json = await res.json();
-		return json;
+		return isPagination ? json : json.data;
 	},
 
 	async post<T>(path: string, body: unknown): Promise<T> {
