@@ -1,0 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=JetBrains+Mono&display=swap');
+@import 'tailwindcss/preflight' @tailwind utilities;
+
+@layer base {
+	body {
+		@apply bg-surface text-zinc-100 antialiased;
+	}
+}
