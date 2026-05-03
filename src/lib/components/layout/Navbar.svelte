@@ -1,58 +1,78 @@
 <script lang="ts">
-  import { page } from '$app/stores'
-  import { derived } from 'svelte/store'
+	import { page } from '$app/stores';
+	import { derived } from 'svelte/store';
+	import { authService } from '$lib/services/auth.service';
+	import { authStore } from '$lib/stores/auth.store';
 
-  // Resolve page title dari URL
-  const pageTitle = derived(page, $page => {
-    const path = $page.url.pathname
-    if (path === '/') return 'Dashboard'
-    if (path === '/campaigns') return 'All Campaigns'
-    if (path === '/campaigns/new') return 'New Campaign'
-    if (path.includes('/analyze')) return 'AI Analysis'
-    if (path.includes('/campaigns/')) return 'Campaign Detail'
-    if (path === '/history') return 'Analysis History'
-    if (path === '/settings') return 'Settings'
-    return 'Campaign Analyzer'
-  })
+	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 
-  let searchQuery = ''
+	const userEmail = derived(authStore, ($auth) => $auth?.email ?? '');
+
+	// Resolve page title dari URL
+	const pageTitle = derived(page, ($page) => {
+		const path = $page.url.pathname;
+		if (path === '/') return 'Dashboard';
+		if (path === '/campaigns') return 'All Campaigns';
+		if (path === '/campaigns/new') return 'New Campaign';
+		if (path.includes('/analyze')) return 'AI Analysis';
+		if (path.includes('/campaigns/')) return 'Campaign Detail';
+		if (path === '/history') return 'Analysis History';
+		return 'Campaign Analyzer';
+	});
+
+	function initials(email: string) {
+		return email.slice(0, 2).toUpperCase();
+	}
+
+	async function handleLogout() {
+		await authService.logout();
+		goto(resolve('/login'));
+	}
 </script>
 
-<header class="h-14 bg-[#0c0c0e] border-b border-zinc-900 flex items-center px-5 gap-4 shrink-0">
-  <!-- Page Title -->
-  <h1 class="text-[15px] font-semibold text-zinc-100 flex-1 tracking-tight">
-    {$pageTitle}
-  </h1>
+<header class="h-18 bg-[#0c0c0e] border-b border-zinc-900 flex items-center px-5 gap-4 shrink-0">
+	<!-- Page Title -->
+	<h1 class="text-[15px] font-semibold text-zinc-100 flex-1 tracking-tight">
+		{$pageTitle}
+	</h1>
 
-  <!-- Search -->
-  <div class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 w-48 focus-within:border-zinc-700 transition-colors">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-600 shrink-0">
-      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-    </svg>
-    <input
-      bind:value={searchQuery}
-      type="search"
-      placeholder="Search..."
-      class="bg-transparent text-xs text-zinc-300 placeholder-zinc-600 outline-none w-full"
-    />
-  </div>
-
-  <!-- Actions -->
-  <div class="flex items-center gap-2">
-    <!-- Notification -->
-    <button class="relative w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-300 hover:border-zinc-700 transition-colors" aria-label="Notifications">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-      </svg>
-      <!-- Notification dot -->
-      <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
-    </button>
-
-    <!-- Divider -->
-    <div class="w-px h-5 bg-zinc-800"></div>
-
-    <!-- Breadcrumb slot for deeper pages -->
-    <slot />
-  </div>
+	<div class="p-2.5 border-t border-zinc-900">
+		<div
+			class="flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-zinc-900 transition-colors group"
+		>
+			<div
+				class="w-7 h-7 rounded-full bg-indigo-950 border border-indigo-800 flex items-center justify-center text-indigo-400 text-[10px] font-semibold shrink-0"
+			>
+				{initials($userEmail)}
+			</div>
+			<div class="flex-1 min-w-0">
+				<p class="text-[11px] text-zinc-500 truncate">{$userEmail}</p>
+			</div>
+			<button
+				on:click={handleLogout}
+				class="text-zinc-700 hover:text-zinc-400 transition-colors p-0.5"
+				title="Logout"
+				aria-label="Logout"
+			>
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+				>
+					<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+					<polyline points="16 17 21 12 16 7" />
+					<line x1="21" y1="12" x2="9" y2="12" />
+				</svg>
+			</button>
+		</div>
+	</div>
+	<div class="flex items-center gap-2">
+		<slot />
+	</div>
 </header>
