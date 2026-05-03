@@ -14,7 +14,7 @@
 		error = '';
 		try {
 			await authService.login(email, password);
-			goto(resolve('/campaigns'));
+			goto(resolve('/dashboard'));
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (e: any) {
 			error = e.message ?? 'Login gagal';
