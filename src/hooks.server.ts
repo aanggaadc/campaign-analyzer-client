@@ -42,12 +42,12 @@ export const handle: Handle = async ({ event, resolve }) => {
       data: { user },
       error,
     } = await event.locals.supabase.auth.getUser()
-    if (error) {
+    if (error || !user) {
       // JWT validation has failed
       return { session: null, user: null }
     }
 
-    return { session, user }
+    return { session: { ...session, user }, user }
   }
 
   return resolve(event, {

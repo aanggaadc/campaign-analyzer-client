@@ -6,7 +6,7 @@
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 
-	const userEmail = derived(page, ($page) => $page.data.session?.user?.email ?? '');
+	const userEmail = derived(page, ($page) => $page.data.user?.email ?? '');
 
 	// Resolve page title dari URL
 	const pageTitle = derived(page, ($page) => {

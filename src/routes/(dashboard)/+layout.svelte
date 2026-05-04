@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import type { AuthChangeEvent } from '@supabase/supabase-js';
 
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import Navbar from '$lib/components/layout/Navbar.svelte';
@@ -14,7 +15,7 @@
 
 		const {
 			data: { subscription }
-		} = supabase.auth.onAuthStateChange((event) => {
+		} = supabase.auth.onAuthStateChange((event: AuthChangeEvent) => {
 			if (event === 'SIGNED_OUT') {
 				goto(resolve('/login'));
 			}
