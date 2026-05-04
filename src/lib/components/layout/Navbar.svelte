@@ -2,12 +2,11 @@
 	import { page } from '$app/stores';
 	import { derived } from 'svelte/store';
 	import { authService } from '$lib/services/auth.service';
-	import { authStore } from '$lib/stores/auth.store';
 
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 
-	const userEmail = derived(authStore, ($auth) => $auth?.email ?? '');
+	const userEmail = derived(page, ($page) => $page.data.session?.user?.email ?? '');
 
 	// Resolve page title dari URL
 	const pageTitle = derived(page, ($page) => {
@@ -26,7 +25,17 @@
 	}
 
 	async function handleLogout() {
-		await authService.logout();
+		const supabase = $page.data.supabase;
+
+		if (!supabase) {
+			console.error('Supabase not ready');
+			return;
+		}
+
+		const auth = authService(supabase);
+
+		await auth.logout();
+
 		goto(resolve('/login'));
 	}
 </script>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { campaignRepository } from '$lib/repositories/campaign.repository';
+	import { useCampaign } from '$lib/hooks/useCampaign.js';
 
 	import CampaignMetrics from '$lib/components/campaigns/CampaignMetrics.svelte';
 	import CampaignInfo from '$lib/components/campaigns/CampaignInfo.svelte';
@@ -10,6 +10,7 @@
 
 	export let data;
 
+	const campaignRepository = useCampaign();
 	const { campaign } = data;
 
 	const platformStyle: Record<string, string> = {

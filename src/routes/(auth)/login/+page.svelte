@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { authService } from '$lib/services/auth.service';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -10,14 +11,28 @@
 
 	async function handleLogin() {
 		if (loading) return;
+
+		const supabase = $page.data.supabase;
+
+		if (!supabase) {
+			console.error('Supabase not ready');
+			return;
+		}
+
+		const auth = authService(supabase);
+
 		loading = true;
 		error = '';
+
 		try {
-			await authService.login(email, password);
+			await auth.login(email, password);
+
+			await new Promise((r) => setTimeout(r, 100));
+
 			goto(resolve('/dashboard'));
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		} catch (e: any) {
-			error = e.message ?? 'Login gagal';
+		} catch (e) {
+			const errorMessage = e instanceof Error ? e.message : 'Login gagal';
+			error = errorMessage;
 		} finally {
 			loading = false;
 		}

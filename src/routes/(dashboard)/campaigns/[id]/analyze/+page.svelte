@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { campaignRepository } from '$lib/repositories/campaign.repository';
+	import { useCampaign } from '$lib/hooks/useCampaign.js';
 	import type { AnalyzeResult } from '$lib/types/campaign.types';
 
 	import AnalyzeLoading from '$lib/components/analyze/AnalyzeLoading.svelte';
@@ -11,6 +11,7 @@
 
 	export let data;
 	const { campaign } = data;
+	const campaignRepository = useCampaign();
 
 	type State = 'idle' | 'loading' | 'done' | 'error';
 
@@ -32,7 +33,8 @@
 		result = null;
 
 		try {
-			result = await campaignRepository.analyze(campaign.id);
+			const response = await campaignRepository.analyze(campaign.id);
+			result = response.data;
 			analyzedAt = new Date();
 			state = 'done';
 		} catch (e) {

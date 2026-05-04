@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { campaignRepository } from '$lib/repositories/campaign.repository';
+	import { useCampaign } from '$lib/hooks/useCampaign';
 	import StatsCard from '$lib/components/dashboard/StatsCard.svelte';
 	import WeeklyChart from '$lib/components/dashboard/WeeklyChart.svelte';
 	import PlatformChart from '$lib/components/dashboard/PlatformChart.svelte';
@@ -9,6 +9,8 @@
 
 	let campaigns: Campaign[] = [];
 	let loading = true;
+
+	const campaign = useCampaign();
 
 	// Derived summary stats dari data kampanye
 	$: totalSpend = campaigns.reduce((s, c) => s + c.cost, 0);
@@ -71,8 +73,7 @@
 
 	onMount(async () => {
 		try {
-			// Ambil semua kampanye (limit besar untuk summary)
-			const res = await campaignRepository.findAll(1, 50);
+			const res = await campaign.findAll(1, 50);
 			campaigns = res.data;
 		} catch (e) {
 			console.error(e);
@@ -96,8 +97,10 @@
 	<!-- Stats Cards -->
 	{#if loading}
 		<div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-			{#each Array(4) as number,index (index)}
-				<div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 animate-pulse h-24">{number}</div>
+			{#each Array(4) as number, index (index)}
+				<div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 animate-pulse h-24">
+					{number}
+				</div>
 			{/each}
 		</div>
 	{:else}

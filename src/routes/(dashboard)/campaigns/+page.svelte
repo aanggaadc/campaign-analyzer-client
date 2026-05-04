@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
-	import { campaignRepository } from '$lib/repositories/campaign.repository';
+	import { useCampaign } from '$lib/hooks/useCampaign';
+
 	import { campaignStore } from '$lib/stores/campaign.store';
 	import type { Campaign } from '$lib/types/campaign.types';
 
@@ -15,13 +16,15 @@
 		total_pages: 1
 	};
 
+	const campaign = useCampaign();
+
 	onMount(loadCampaigns);
 
 	async function loadCampaigns() {
 		loading = true;
 		error = '';
 		try {
-			const res = await campaignRepository.findAll(page, limit);
+			const res = await campaign.findAll(1, 10);
 			campaigns = res.data;
 			meta = res.meta;
 			campaignStore.setCampaigns(campaigns);
@@ -36,7 +39,6 @@
 		if (p < 1 || p > meta.total_pages || p === page) return;
 		page = p;
 		await loadCampaigns();
-		// Scroll ke atas tabel setelah ganti halaman
 		window.scrollTo({
 			top: 0,
 			behavior: 'smooth'

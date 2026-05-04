@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { authService } from '$lib/services/auth.service';
 	import { resolve } from '$app/paths';
 
@@ -14,14 +15,25 @@
 			error = 'Password tidak cocok';
 			return;
 		}
+
+		const supabase = $page.data.supabase;
+
+		if (!supabase) {
+			error = 'Supabase belum ready';
+			return;
+		}
+
+		const auth = authService(supabase);
+
 		loading = true;
 		error = '';
+
 		try {
-			await authService.register(email, password);
+			await auth.register(email, password);
 			success = true;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		} catch (e: any) {
-			error = e.message ?? 'Registrasi gagal';
+		} catch (e) {
+			const errorMessage = e instanceof Error ? e.message : 'Registrasi Gagal';
+			error = errorMessage;
 		} finally {
 			loading = false;
 		}

@@ -1,22 +1,23 @@
 <script lang="ts">
-	import Sidebar from '$lib/components/layout/Sidebar.svelte';
-	import Navbar from '$lib/components/layout/Navbar.svelte';
-	import { authStore } from '$lib/stores/auth.store';
-	import { supabase } from '$lib/utils/supabase';
+	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 
-	export let data;
+	import Sidebar from '$lib/components/layout/Sidebar.svelte';
+	import Navbar from '$lib/components/layout/Navbar.svelte';
 
 	onMount(() => {
-		authStore.setUser(data.user);
+		const supabase = $page.data.supabase;
+
+		if (!supabase) return;
 
 		const {
 			data: { subscription }
-		} = supabase.auth.onAuthStateChange((event, session) => {
-			if (event === 'SIGNED_OUT') goto(resolve('/login'));
-			authStore.setUser(session?.user ?? null);
+		} = supabase.auth.onAuthStateChange((event) => {
+			if (event === 'SIGNED_OUT') {
+				goto(resolve('/login'));
+			}
 		});
 
 		return () => subscription.unsubscribe();
