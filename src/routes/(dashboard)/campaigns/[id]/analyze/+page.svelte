@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/stores';
+	import { get } from 'svelte/store';
 	import { useCampaign } from '$lib/hooks/useCampaign.js';
 	import type { AnalyzeResult } from '$lib/types/campaign.types';
 
@@ -27,19 +29,51 @@
 		TikTok: 'bg-violet-950 text-violet-400'
 	};
 
+
+	onMount(async () => {
+		const historyId = get(page).url.searchParams.get('history');
+
+		if (historyId) {
+			await loadFromHistory(historyId);
+		} else {
+			await runAnalysis();
+		}
+	});
+
+	async function loadFromHistory(historyId: string) {
+		state = 'loading';
+		errorMsg = '';
+
+		try {
+			const response = await campaignRepository.getAnalysisById(historyId);
+			const history = response?.data
+			result = {
+				summary: history.summary,
+				issues: history.issues,
+				recommendations: history.recommendations,
+				priority_actions: history.priority_actions
+			};
+			analyzedAt = new Date(history.created_at);
+			state = 'done';
+		} catch {
+			await runAnalysis();
+		}
+	}
+
 	async function runAnalysis() {
 		state = 'loading';
 		errorMsg = '';
 		result = null;
 
 		try {
+			// ✅ analyze() di repository sudah return AnalyzeResult langsung
+			// tidak perlu .data lagi karena api.get() sudah unwrap { data: ... }
 			const response = await campaignRepository.analyze(campaign.id);
 			result = response.data;
 			analyzedAt = new Date();
 			state = 'done';
 		} catch (e) {
-			const error = e instanceof Error ? e.message : 'Analisis gagal, coba lagi';
-			errorMsg = error;
+			errorMsg = e instanceof Error ? e.message : 'Analisis gagal, coba lagi';
 			state = 'error';
 		}
 	}
@@ -59,9 +93,6 @@
 			' WIB'
 		);
 	}
-
-	// Auto-run saat halaman dibuka
-	onMount(() => runAnalysis());
 </script>
 
 <div class="max-w-2xl mx-auto space-y-5">

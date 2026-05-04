@@ -2,7 +2,9 @@ import type {
 	Campaign,
 	CreateCampaignDTO,
 	AnalyzeResult,
-	CampaignListResponse
+	CampaignListResponse,
+	AnalysisHistory,
+	AnalysisHistoryListResponse
 } from '$lib/types/campaign.types';
 import type { ApiClient } from '$lib/types/api';
 
@@ -11,7 +13,7 @@ export const createCampaignRepository = (api: ApiClient) => ({
 		return api.get(`/campaigns?page=${page}&limit=${limit}`);
 	},
 
-	async findById(id: string): Promise<{data: Campaign}> {
+	async findById(id: string): Promise<{ data: Campaign }> {
 		return api.get(`/campaigns/${id}`);
 	},
 
@@ -23,11 +25,19 @@ export const createCampaignRepository = (api: ApiClient) => ({
 		return api.get(`/campaigns/${id}/metrics`);
 	},
 
-	async analyze(id: string): Promise<{data: AnalyzeResult}> {
+	async analyze(id: string): Promise<{ data: AnalyzeResult }> {
 		return api.get(`/campaigns/${id}/analyze`);
 	},
 
 	async delete(id: string) {
 		return api.delete(`/campaigns/${id}`);
+	},
+
+	async getAnalysisHistory(page = 1, limit = 10): Promise<AnalysisHistoryListResponse> {
+		return api.get(`/analyses?page=${page}&limit=${limit}`);
+	},
+
+	async getAnalysisById(id: string): Promise<{ data: AnalysisHistory }> {
+		return api.get(`/analyses/${id}`);
 	}
 });
