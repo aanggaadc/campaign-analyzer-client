@@ -29,7 +29,6 @@
 		TikTok: 'bg-violet-950 text-violet-400'
 	};
 
-
 	onMount(async () => {
 		const historyId = get(page).url.searchParams.get('history');
 
@@ -46,7 +45,7 @@
 
 		try {
 			const response = await campaignRepository.getAnalysisById(historyId);
-			const history = response?.data
+			const history = response?.data;
 			result = {
 				summary: history.summary,
 				issues: history.issues,
@@ -66,9 +65,7 @@
 		result = null;
 
 		try {
-			// ✅ analyze() di repository sudah return AnalyzeResult langsung
-			// tidak perlu .data lagi karena api.get() sudah unwrap { data: ... }
-			const response = await campaignRepository.analyze(campaign.id);
+			const response = await campaignRepository.analyze(campaign?.id ?? '');
 			result = response.data;
 			analyzedAt = new Date();
 			state = 'done';
@@ -101,10 +98,10 @@
 		<a href={resolve('/campaigns')} class="hover:text-zinc-400 transition-colors">Campaigns</a>
 		<span>/</span>
 		<a
-			href={resolve(`/campaigns/${campaign.id}`)}
+			href={resolve(`/campaigns/${campaign?.id}`)}
 			class="hover:text-zinc-400 transition-colors truncate max-w-35"
 		>
-			{campaign.name}
+			{campaign?.name}
 		</a>
 		<span>/</span>
 		<span class="text-zinc-400">Analisis AI</span>
@@ -121,16 +118,17 @@
 		class="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-[11px] text-zinc-400"
 	>
 		<div class="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
-		<span class="font-medium text-zinc-300">{campaign.name}</span>
+		<span class="font-medium text-zinc-300">{campaign?.name}</span>
 		<span class="text-zinc-700">·</span>
 		<span
-			class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md {platformStyle[campaign.platform] ??
-				'bg-zinc-800 text-zinc-400'}"
+			class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md {platformStyle[
+				campaign?.platform ?? ''
+			] ?? 'bg-zinc-800 text-zinc-400'}"
 		>
-			{campaign.platform}
+			{campaign?.platform}
 		</span>
 		<span class="text-zinc-700">·</span>
-		<span>CTR {(campaign.metrics.ctr * 100).toFixed(2)}%</span>
+		<span>CTR {(campaign?.metrics?.ctr ?? 0 * 100).toFixed(2)}%</span>
 	</div>
 
 	<!-- State: loading -->
