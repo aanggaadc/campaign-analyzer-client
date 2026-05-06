@@ -15,7 +15,12 @@
 			label: 'Campaigns',
 			items: [
 				{ href: '/campaigns', label: 'All Campaigns', icon: 'list' },
-				{ href: '/campaigns/new', label: 'New Campaign', icon: 'plus' }
+				{ href: '/campaigns/new', label: 'New Campaign', icon: 'plus' },
+				{
+					href: '/campaigns/import',
+					label: 'Import CSV',
+					icon: 'upload'
+				}
 			]
 		},
 		{

@@ -41,6 +41,20 @@ export const createApi = (supabase: SupabaseClient): ApiClient => {
 			const json = await res.json();
 			return json.data;
 		},
+		async upload<T>(path: string, formData: FormData): Promise<T> {
+			const { Authorization } = await getAuthHeaders();
+
+			const res = await fetch(`${API_URL}${path}`, {
+				method: 'POST',
+				headers: { Authorization },
+				body: formData
+			});
+
+			if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+			const json = await res.json();
+			return json.data;
+		},
 		async delete(path: string): Promise<void> {
 			const headers = await getAuthHeaders();
 			const res = await fetch(`${API_URL}${path}`, { method: 'DELETE', headers });

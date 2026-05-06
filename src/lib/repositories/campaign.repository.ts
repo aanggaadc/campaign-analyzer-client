@@ -4,7 +4,8 @@ import type {
 	AnalyzeResult,
 	CampaignListResponse,
 	AnalysisHistory,
-	AnalysisHistoryListResponse
+	AnalysisHistoryListResponse,
+	CsvUploadResult
 } from '$lib/types/campaign.types';
 import type { ApiClient } from '$lib/types/api';
 
@@ -39,5 +40,12 @@ export const createCampaignRepository = (api: ApiClient) => ({
 
 	async getAnalysisById(id: string): Promise<{ data: AnalysisHistory }> {
 		return api.get(`/analyses/${id}`);
+	},
+
+	async uploadCsv(file: File): Promise<CsvUploadResult> {
+		const formData = new FormData();
+		formData.append('file', file);
+
+		return api.upload('/campaigns/import', formData);
 	}
 });
