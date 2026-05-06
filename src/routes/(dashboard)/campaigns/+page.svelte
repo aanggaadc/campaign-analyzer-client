@@ -24,7 +24,7 @@
 		loading = true;
 		error = '';
 		try {
-			const res = await campaign.findAll(1, 10);
+			const res = await campaign.findAll(page, 10);
 			campaigns = res.data;
 			meta = res.meta;
 			campaignStore.setCampaigns(campaigns);
