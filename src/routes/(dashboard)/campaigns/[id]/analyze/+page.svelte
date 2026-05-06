@@ -50,7 +50,9 @@
 				summary: history.summary,
 				issues: history.issues,
 				recommendations: history.recommendations,
-				priority_actions: history.priority_actions
+				priority_actions: history.priority_actions,
+				campaign_name: history.campaign_name,
+				campaign_platform: history.platform
 			};
 			analyzedAt = new Date(history.created_at);
 			state = 'done';
@@ -101,7 +103,7 @@
 			href={resolve(`/campaigns/${campaign?.id}`)}
 			class="hover:text-zinc-400 transition-colors truncate max-w-35"
 		>
-			{campaign?.name}
+			{campaign?.name ?? result?.campaign_name}
 		</a>
 		<span>/</span>
 		<span class="text-zinc-400">Analisis AI</span>
@@ -118,14 +120,14 @@
 		class="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-[11px] text-zinc-400"
 	>
 		<div class="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
-		<span class="font-medium text-zinc-300">{campaign?.name}</span>
+		<span class="font-medium text-zinc-300">{campaign?.name ?? result?.campaign_name}</span>
 		<span class="text-zinc-700">·</span>
 		<span
 			class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md {platformStyle[
-				campaign?.platform ?? ''
+				campaign?.platform ?? result?.campaign_platform ?? ""
 			] ?? 'bg-zinc-800 text-zinc-400'}"
 		>
-			{campaign?.platform}
+			{campaign?.platform ?? result?.campaign_platform}
 		</span>
 		<span class="text-zinc-700">·</span>
 		<span>CTR {(campaign?.metrics?.ctr ?? 0 * 100).toFixed(2)}%</span>

@@ -31,6 +31,8 @@ export interface AnalyzeResult {
 	issues: string[];
 	recommendations: string[];
 	priority_actions: string[];
+	campaign_name: string;
+	campaign_platform: string;
 }
 
 export interface CampaignListResponse {
