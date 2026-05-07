@@ -41,11 +41,13 @@ export const createCampaignRepository = (api: ApiClient) => ({
 	async getAnalysisById(id: string): Promise<{ data: AnalysisHistory }> {
 		return api.get(`/analyses/${id}`);
 	},
-
 	async uploadCsv(file: File): Promise<CsvUploadResult> {
 		const formData = new FormData();
 		formData.append('file', file);
 
 		return api.upload('/campaigns/import', formData);
+	},
+	async exportAnalysisPdf(analysisId: string): Promise<Response> {
+		return await api.getBlob(`/analyses/${analysisId}/export`);
 	}
 });

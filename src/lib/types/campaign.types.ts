@@ -27,6 +27,7 @@ export interface CreateCampaignDTO {
 }
 
 export interface AnalyzeResult {
+	id: string;
 	summary: string;
 	issues: string[];
 	recommendations: string[];

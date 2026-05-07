@@ -26,7 +26,14 @@ export const createApi = (supabase: SupabaseClient): ApiClient => {
 
 			return res.json();
 		},
+		async getBlob(path: string): Promise<Response> {
+			const headers = await getAuthHeaders();
+			const res = await fetch(`${API_URL}${path}`, { headers });
 
+			if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+			return res;
+		},
 		async post<T>(path: string, body: unknown): Promise<T> {
 			const headers = await getAuthHeaders();
 

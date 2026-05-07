@@ -22,6 +22,10 @@
 	let errorMsg = '';
 	let analyzedAt: Date | null = null;
 
+	let historyId: string | null = get(page).url.searchParams.get('history');
+	let exporting = false;
+	let exportError = '';
+
 	const platformStyle: Record<string, string> = {
 		Facebook: 'bg-blue-950 text-blue-400',
 		Instagram: 'bg-pink-950 text-pink-400',
@@ -30,8 +34,6 @@
 	};
 
 	onMount(async () => {
-		const historyId = get(page).url.searchParams.get('history');
-
 		if (historyId) {
 			await loadFromHistory(historyId);
 		} else {
@@ -47,6 +49,7 @@
 			const response = await campaignRepository.getAnalysisById(historyId);
 			const history = response?.data;
 			result = {
+				id: historyId,
 				summary: history.summary,
 				issues: history.issues,
 				recommendations: history.recommendations,
@@ -70,10 +73,40 @@
 			const response = await campaignRepository.analyze(campaign?.id ?? '');
 			result = response.data;
 			analyzedAt = new Date();
+			historyId = result.id;
 			state = 'done';
 		} catch (e) {
 			errorMsg = e instanceof Error ? e.message : 'Analisis gagal, coba lagi';
 			state = 'error';
+		}
+	}
+
+	async function handleExportPdf() {
+		if (!historyId) return;
+
+		exporting = true;
+		exportError = '';
+
+		try {
+			const res = await campaignRepository.exportAnalysisPdf(historyId);
+
+			const disposition = res.headers.get('Content-Disposition');
+			const filename =
+				disposition?.match(/filename="?([^"]+)"?/)?.[1] ?? `analysis-${historyId}.pdf`;
+			const blob = await res.blob();
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		} catch (e) {
+			exportError = e instanceof Error ? e.message : 'Export gagal';
+		} finally {
+			exporting = false;
 		}
 	}
 
@@ -116,21 +149,68 @@
 	</div>
 
 	<!-- Campaign chip -->
-	<div
-		class="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-[11px] text-zinc-400"
-	>
-		<div class="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
-		<span class="font-medium text-zinc-300">{campaign?.name ?? result?.campaign_name}</span>
-		<span class="text-zinc-700">·</span>
-		<span
-			class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md {platformStyle[
-				campaign?.platform ?? result?.campaign_platform ?? ""
-			] ?? 'bg-zinc-800 text-zinc-400'}"
+	<div class="flex items-center justify-between">
+		<div
+			class="inline-flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1.5 text-[11px] text-zinc-400"
 		>
-			{campaign?.platform ?? result?.campaign_platform}
-		</span>
-		<span class="text-zinc-700">·</span>
-		<span>CTR {(campaign?.metrics?.ctr ?? 0 * 100).toFixed(2)}%</span>
+			<div class="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>
+			<span class="font-medium text-zinc-300">{campaign?.name ?? result?.campaign_name}</span>
+			<span class="text-zinc-700">·</span>
+			<span
+				class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md {platformStyle[
+					campaign?.platform ?? result?.campaign_platform ?? ''
+				] ?? 'bg-zinc-800 text-zinc-400'}"
+			>
+				{campaign?.platform ?? result?.campaign_platform}
+			</span>
+			<span class="text-zinc-700">·</span>
+			<span>CTR {(campaign?.metrics?.ctr ?? 0 * 100).toFixed(2)}%</span>
+		</div>
+
+		{#if historyId}
+			<div class="flex flex-col items-end gap-1">
+				<button
+					on:click={handleExportPdf}
+					disabled={exporting}
+					class="flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 hover:text-zinc-200 border border-zinc-800 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-colors"
+				>
+					{#if exporting}
+						<svg
+							class="animate-spin"
+							width="11"
+							height="11"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path d="M21 12a9 9 0 1 1-6.219-8.56" />
+						</svg>
+						Mengexport...
+					{:else}
+						<svg
+							width="11"
+							height="11"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+							<polyline points="14 2 14 8 20 8" />
+							<line x1="4" y1="13" x2="20" y2="13" />
+							<polyline points="8 17 12 21 16 17" />
+						</svg>
+						Export PDF
+					{/if}
+				</button>
+				{#if exportError}
+					<p class="text-[10px] text-red-400">{exportError}</p>
+				{/if}
+			</div>
+		{/if}
 	</div>
 
 	<!-- State: loading -->
